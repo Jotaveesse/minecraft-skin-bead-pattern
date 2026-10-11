@@ -180,7 +180,8 @@ const RIGHT_ARM_RIGHT: RectangleMapping = {
     destX: 0,
     destY: 28,
     excludedPixels: new Set<number>([
-        0, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 47,
+        0, 1, 2, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 45, 46,
+        47,
     ]),
 };
 
@@ -204,7 +205,8 @@ const RIGHT_ARM_LEFT: RectangleMapping = {
     destX: 12,
     destY: 28,
     excludedPixels: new Set<number>([
-        0, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 47,
+        0, 1, 2, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 45, 46,
+        47,
     ]),
 };
 
@@ -248,7 +250,8 @@ const LEFT_ARM_RIGHT: RectangleMapping = {
     destX: 26,
     destY: 28,
     excludedPixels: new Set<number>([
-        0, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 47,
+        0, 1, 2, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 45, 46,
+        47,
     ]),
 };
 
@@ -272,7 +275,8 @@ const LEFT_ARM_LEFT: RectangleMapping = {
     destX: 38,
     destY: 28,
     excludedPixels: new Set<number>([
-        0, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 47,
+        0, 1, 2, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 45, 46,
+        47,
     ]),
 };
 
@@ -316,7 +320,8 @@ const RIGHT_LEG_RIGHT: RectangleMapping = {
     destX: 52,
     destY: 28,
     excludedPixels: new Set<number>([
-        0, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 47,
+        0, 1, 2, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 45, 46,
+        47,
     ]),
 };
 
@@ -340,7 +345,8 @@ const RIGHT_LEG_LEFT: RectangleMapping = {
     destX: 64,
     destY: 28,
     excludedPixels: new Set<number>([
-        0, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 47,
+        0, 1, 2, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 45, 46,
+        47,
     ]),
 };
 
@@ -384,7 +390,8 @@ const LEFT_LEG_RIGHT: RectangleMapping = {
     destX: 78,
     destY: 28,
     excludedPixels: new Set<number>([
-        0, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 47,
+        0, 1, 2, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 45, 46,
+        47,
     ]),
 };
 
@@ -408,7 +415,8 @@ const LEFT_LEG_LEFT: RectangleMapping = {
     destX: 90,
     destY: 28,
     excludedPixels: new Set<number>([
-        0, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 47,
+        0, 1, 2, 3, 4, 7, 16, 19, 20, 23, 24, 27, 28, 31, 40, 43, 44, 45, 46,
+        47,
     ]),
 };
 
@@ -505,4 +513,5 @@ const lookup = (function buildLookupTable() {
     return lookup;
 })();
 
-export { lookup, INPUT_W, INPUT_H, OUTPUT_W, OUTPUT_H };
+export { lookup, INPUT_W, INPUT_H, OUTPUT_W, OUTPUT_H, MAPPINGS };
+export type { RectangleMapping };

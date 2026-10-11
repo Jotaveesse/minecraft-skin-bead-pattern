@@ -1,11 +1,18 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
 import { INPUT_H, INPUT_W, OUTPUT_H, OUTPUT_W, lookup } from "./Mappings";
-import FileInput from "./components/FileInput";
-import Button from "./components/Button";
+import FileInput from "./components/MinecraftFileInput";
+import MinecraftButton from "./components/MinecraftButton";
+import { generateVoxelModel, VoxelCharacter, type VoxelData } from "./Model";
+import sculkAnimated from "./assets/sculk_animated.webp";
 
 function App() {
     const outputCanvasRef = useRef<HTMLCanvasElement>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
+
+    const [is3DView, setIs3DView] = useState(false);
+    const [voxelData, setVoxelData] = useState<VoxelData[]>([]);
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -15,28 +22,25 @@ function App() {
         img.src = URL.createObjectURL(file);
         img.onload = () => {
             if (img.width !== INPUT_W || img.height !== INPUT_H) {
-                alert(
-                    `A imagem deve ter exatamente ${INPUT_W}x${INPUT_H} pixels.`,
-                );
+                alert(`The image must have ${INPUT_W}x${INPUT_H} pixels.`);
                 setImageFile(null);
                 return;
             }
 
             setImageFile(file);
+            setIs3DView(false);
 
             const outCanvas = outputCanvasRef.current;
             if (!outCanvas) return;
             const outCtx = outCanvas.getContext("2d");
             if (!outCtx) return;
 
-            // 1. Create hidden in-memory canvas for the INPUT
             const inCanvas = document.createElement("canvas");
             inCanvas.width = INPUT_W;
             inCanvas.height = INPUT_H;
             const inCtx = inCanvas.getContext("2d");
             if (!inCtx) return;
 
-            // Draw input image and extract its pixels
             inCtx.drawImage(img, 0, 0, INPUT_W, INPUT_H);
             const inData = inCtx.getImageData(0, 0, INPUT_W, INPUT_H);
             const srcPixels = new Uint32Array(inData.data.buffer);
@@ -44,47 +48,42 @@ function App() {
             const outData = outCtx.createImageData(OUTPUT_W, OUTPUT_H);
             const destPixels = new Uint32Array(outData.data.buffer);
 
-            const maxIter = destPixels.length;
-
-            for (let i = 0; i < maxIter; i++) {
+            for (let i = 0; i < destPixels.length; i++) {
                 const srcIndex = lookup[i];
-
-                if (srcIndex < srcPixels.length) {
+                if (srcIndex < srcPixels.length && srcIndex !== -1) {
                     destPixels[i] = srcPixels[srcIndex];
                 }
             }
 
-            // 4. Render to the visible output canvas
             outCtx.putImageData(outData, 0, 0);
         };
     };
 
     const handleDeleteImage = () => {
         setImageFile(null);
+        setIs3DView(false);
+        setVoxelData([]);
     };
 
     const handleDownloadImage = () => {
         if (!imageFile) return;
-        //scale image by 4x
-
         const outCanvas = outputCanvasRef.current;
+        if (!outCanvas) return;
+
         const scaledCanvas = document.createElement("canvas");
         scaledCanvas.width = OUTPUT_W * 16;
         scaledCanvas.height = OUTPUT_H * 16;
-
         const scaledCtx = scaledCanvas.getContext("2d");
         if (!scaledCtx) return;
 
-        if (outCanvas) {
-            scaledCtx.imageSmoothingEnabled = false;
-            scaledCtx.drawImage(
-                outCanvas,
-                0,
-                0,
-                scaledCanvas.width,
-                scaledCanvas.height,
-            );
-        }
+        scaledCtx.imageSmoothingEnabled = false;
+        scaledCtx.drawImage(
+            outCanvas,
+            0,
+            0,
+            scaledCanvas.width,
+            scaledCanvas.height,
+        );
 
         const imageName = imageFile.name.replace(/\.[^/.]+$/, "");
         const link = document.createElement("a");
@@ -94,17 +93,13 @@ function App() {
     };
 
     const handleView3D = () => {
-        const outCanvas = outputCanvasRef.current;
-        if (!outCanvas) return;
+        if (!imageFile || !outputCanvasRef.current) return;
 
-        const dataUrl = outCanvas.toDataURL("image/png");
-        const newWindow = window.open("", "_blank");
-        if (newWindow) {
-            newWindow.document.write(
-                `<img src="${dataUrl}" alt="Skin 3D View" />`,
-            );
-            newWindow.document.title = "Skin 3D View";
+        if (!is3DView) {
+            const data = generateVoxelModel(outputCanvasRef.current);
+            setVoxelData(data);
         }
+        setIs3DView(!is3DView);
     };
 
     return (
@@ -113,53 +108,72 @@ function App() {
             style={{
                 height: "100dvh",
                 width: "100dvw",
+                backgroundImage: `url(${sculkAnimated})`,
+                backgroundSize: "250px",
+                imageRendering: "pixelated",
             }}
         >
             <FileInput
-                message="Faça upload da sua skin"
+                message="Upload your skin"
                 onChange={handleImageUpload}
                 style={{
-                    aspectRatio: `${OUTPUT_W}/${OUTPUT_H}`,
-                    flexGrow: 1,
                     width: "100%",
                     height: "100%",
                     objectFit: "contain",
+                    backgroundColor: "#c6c6c6",
                     display: imageFile ? "none" : "block",
                 }}
             />
 
-            <canvas
-                ref={outputCanvasRef}
-                width={OUTPUT_W}
-                height={OUTPUT_H}
-                style={{
-                    display: imageFile ? "block" : "none",
-                    aspectRatio: `${OUTPUT_W}/${OUTPUT_H}`,
-                    flexGrow: 1,
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                    imageRendering: "pixelated", // Keeps 64x64 pixelated and sharp
-                    border: "1px solid #ccc",
-                    backgroundColor: "#b0afaf",
-                }}
-            ></canvas>
-
-            <div className="btn-group" role="group">
-                <Button
-                    text="Deletar"
-                    onClick={handleDeleteImage}
-                    color="danger"
+            <div
+                className="mc-panel"
+                style={
+                    {
+                        display: imageFile ? "flex" : "none",
+                        flexGrow: 1,
+                        width: "100%",
+                        height: "100%",
+                        position: "relative",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        overflow: "hidden",
+                        "--mc-px": "3px",
+                    } as React.CSSProperties
+                }
+            >
+                {/* CANVAS 2D PIXELADO */}
+                <canvas
+                    ref={outputCanvasRef}
+                    width={OUTPUT_W}
+                    height={OUTPUT_H}
+                    style={{
+                        display: is3DView ? "none" : "block",
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        imageRendering: "pixelated",
+                    }}
                 />
-                <Button
+
+                {/* CANVAS 3D VOXEL */}
+                {is3DView && (
+                    <Canvas flat camera={{ position: [0, 16, 40], fov: 50 }}>
+                        <color attach="background" args={["#6f6f6f"]} />
+                        <VoxelCharacter voxelData={voxelData} />
+                        <OrbitControls target={[0, 16, 0]} />
+                    </Canvas>
+                )}
+            </div>
+
+            <div className="d-flex gap-2">
+                <MinecraftButton text="Delete" onClick={handleDeleteImage} />
+                <MinecraftButton
                     text="Download"
                     onClick={handleDownloadImage}
-                    color="primary"
                 />
-                <Button
-                    text="Ver em 3D"
+                <MinecraftButton
+                    text={is3DView ? "See Pattern" : "See Assembled"}
                     onClick={handleView3D}
-                    color="success"
                 />
             </div>
         </div>
