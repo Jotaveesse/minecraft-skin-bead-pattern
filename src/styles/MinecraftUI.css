@@ -1,6 +1,4 @@
 .mc-button, .mc-panel {
-    /* One "unit" of the GUI. Override per component with an inline style:
-       style={{ "--mc-px": "3px" }}. Everything below scales with it. */
     --mc-px: 1px;
 
     position: relative;
@@ -10,10 +8,10 @@
     color: #fff;
     text-shadow: calc(1.6 * var(--mc-px)) calc(1.6 * var(--mc-px)) 0 #3f3f3f;
     background-color: #6f6f6f;
-    /* hard black outline, square corners */
+
     border: calc(2 * var(--mc-px)) solid #000;
     border-radius: 0;
-    /* bevel: light top/left edge, thicker dark bottom/right edge */
+
     box-shadow:
         inset calc(2 * var(--mc-px)) calc(2 * var(--mc-px)) 0 rgba(255, 255, 255, 0.45),
         inset calc(-2 * var(--mc-px)) calc(-4 * var(--mc-px)) 0 rgba(0, 0, 0, 0.4);
@@ -27,24 +25,18 @@
 
 .mc-panel{
     padding: calc(2 * var(--mc-px)) calc(2 * var(--mc-px) ) calc(4 * var(--mc-px) ) calc(2 * var(--mc-px) );
-    cursor: pointer;
-    user-select: none;
 }
 
-/* vanilla hover: bluish fill + yellow text.
-   A custom `color` prop is set inline, which overrides this fill. */
 .mc-button:hover:not(:disabled) {
     background-color: #7a7b9c;
     color: #ffffa0;
     text-shadow: calc(1.6 * var(--mc-px)) calc(1.6 * var(--mc-px)) 0 #3f3f28;
 }
 
-/* custom colours just get a slight brighten on hover */
 .mc-button--custom:hover:not(:disabled) {
     filter: brightness(1.1);
 }
 
-/* pressed: flip the bevel and nudge the text down */
 .mc-button:active:not(:disabled) {
     padding-top: calc(12 * var(--mc-px));
     padding-bottom: calc(8 * var(--mc-px));
@@ -62,7 +54,7 @@
 }
 
 .mc-button:disabled {
-    background-color: #3a3a3a !important; /* beats an inline custom colour */
+    background-color: #3a3a3a !important;
     color: #a0a0a0;
     text-shadow: calc(2 * var(--mc-px)) calc(2 * var(--mc-px)) 0 #282828;
     box-shadow:

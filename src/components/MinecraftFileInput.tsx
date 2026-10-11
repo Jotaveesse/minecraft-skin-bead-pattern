@@ -18,9 +18,6 @@ function FileInput({ message, onChange, style }: FileInputProps) {
                 style={{ display: "none" }}
             ></input>
 
-            {/* The label is the click target, styled as one big Minecraft button.
-                Bootstrap's p-* classes are !important and would break the pressed
-                state's padding shift, so spacing comes from .mc-button + gap-3. */}
             <label
                 htmlFor="file-upload"
                 className="mc-button d-flex w-100 h-100 justify-content-center align-items-center flex-column gap-3"
